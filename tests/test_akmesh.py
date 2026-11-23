@@ -61,3 +61,14 @@ def test_relative_data_dir_from_recipe_folder(tmp_path):
     cfg = parse({**BASE, "data_dir": "../inputs"}, source=tmp_path / "configs" / "r.yaml")
     assert cfg.data_dir == tmp_path / "inputs"
     assert cfg.domain == tmp_path / "inputs" / "d.shp"
+
+
+def test_refinement_parts_missing_size_field_uses_default():
+    import geopandas as gpd
+    cfg = parse({**BASE, "refinements": [
+        {"name": "h", "kind": "patch", "shp": "h.shp", "size": 750,
+         "rate": 1e-4, "size_field": "size_m"}]})
+    gdf = gpd.GeoDataFrame({"id": [1, 2]}, geometry=[box(190, 60, 191, 61),
+                           box(195, 60, 196, 61)], crs="EPSG:4326")
+    parts = refinement_parts(cfg.refinements[0], gdf)
+    assert [(p[1], p[2]) for p in parts] == [(750, 1e-4)]

@@ -71,12 +71,17 @@ def refinement_parts(ref, gdf=None):
     distinct (size, rate) when the refinement has size_field/rate_field."""
     if gdf is None:
         gdf = read_polygons(ref.shp)
-    if not ref.size_field and not ref.rate_field:
+    size_field = ref.size_field if ref.size_field in gdf.columns else None
+    rate_field = ref.rate_field if ref.rate_field in gdf.columns else None
+    for f, used in ((ref.size_field, size_field), (ref.rate_field, rate_field)):
+        if f and not used:
+            _logger.info("  %s: no attribute %r in %s; all polygons take the "
+                         "default", ref.name, f, Path(ref.shp).name)
+    if not size_field and not rate_field:
+        if ref.size is None:
+            raise ValueError(f"refinement '{ref.name}': no {ref.size_field} "
+                             f"attribute and no default 'size'")
         return [(union(gdf.geometry), ref.size, ref.rate)]
-    for f in (ref.size_field, ref.rate_field):
-        if f and f not in gdf.columns:
-            raise ValueError(f"refinement '{ref.name}': attribute {f!r} not in "
-                             f"{ref.shp.name} (columns: {list(gdf.columns)})")
 
     def _val(row, fld, default):
         if not fld:
@@ -90,11 +95,11 @@ def refinement_parts(ref, gdf=None):
 
     groups = {}
     for _, row in gdf.iterrows():
-        size = _val(row, ref.size_field, ref.size)
-        rate = _val(row, ref.rate_field, ref.rate)
+        size = _val(row, size_field, ref.size)
+        rate = _val(row, rate_field, ref.rate)
         if size is None:
             raise ValueError(f"refinement '{ref.name}': a polygon has no "
-                             f"{ref.size_field} and no default 'size' is set")
+                             f"{size_field} and no default 'size' is set")
         groups.setdefault((size, rate), []).append(row.geometry)
     return [(union(g), s, r) for (s, r), g in sorted(
         groups.items(), key=lambda kv: (kv[0][0], kv[0][1] or 0))]
