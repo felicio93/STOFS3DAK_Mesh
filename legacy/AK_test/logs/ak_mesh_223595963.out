@@ -1,0 +1,10 @@
+=============================================================
+  Alaska 0-360 mesh   case=m5_no_center  method=exact  engine=gmsh
+  bnd_factor=1.5  workarounds=1  nprocs=32
+  OCSMesh: /gpfs/f6/nos-surge/scratch/Felicio.Cassalho/OCSMesh_MPI/OCSMesh_ak_patched (f02bbe0 AK baseline: OCSMESH_METRIC_CRS forces the metric CRS (fix 4 workaround))
+  Job    : 223595963   Node: c6n0436
+  Data   : /gpfs/f6/nos-surge/scratch/Felicio.Cassalho/OCSMesh_MPI/AK_LargeDomain_Mesh/2026_10_15
+  Output : /gpfs/f6/nos-surge/scratch/Felicio.Cassalho/OCSMesh_MPI/AK_LargeDomain_Mesh/results/m5_no_center_exact_bnd1.5_w1_223595963
+  Date   : Thu Nov 19 10:57:10 AM EST 2026
+=============================================================
+=== DONE Thu Nov 19 03:08:04 PM EST 2026 ===

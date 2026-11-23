@@ -1,0 +1,48 @@
+{
+  "args": {
+    "data_dir": "/gpfs/f6/nos-surge/scratch/Felicio.Cassalho/OCSMesh_MPI/AK_LargeDomain_Mesh/2026_10_15",
+    "force_raster": "False",
+    "save_shifted": "/gpfs/f6/nos-surge/scratch/Felicio.Cassalho/OCSMesh_MPI/AK_LargeDomain_Mesh/results/m5_no_center_fast_bnd1.5_w1_223595964/shapes_360",
+    "out_dir": "/gpfs/f6/nos-surge/scratch/Felicio.Cassalho/OCSMesh_MPI/AK_LargeDomain_Mesh/results/m5_no_center_fast_bnd1.5_w1_223595964",
+    "case": "m5_no_center",
+    "name": "AK_LARGEDOMAIN_m5_no_center",
+    "nprocs": "32",
+    "method": "fast",
+    "engine": "gmsh",
+    "hmin": "1500.0",
+    "hmax": "3500.0",
+    "bnd_factor": "1.5",
+    "no_workarounds": "False"
+  },
+  "case": "m5_no_center",
+  "refinements": [
+    "shelf_150",
+    "below_150_patch",
+    "below_200",
+    "bering_2500",
+    "coarse_south",
+    "coarse_north"
+  ],
+  "ocsmesh": {
+    "path": "/gpfs/f6/nos-surge/scratch/Felicio.Cassalho/OCSMesh_MPI/OCSMesh_ak_patched/ocsmesh",
+    "commit": "f02bbe0 AK baseline: OCSMESH_METRIC_CRS forces the metric CRS (fix 4 workaround)"
+  },
+  "workarounds": true,
+  "timings": {
+    "load_shapes_s": 6.128631830215454,
+    "geom_s": 8.034706115722656e-05,
+    "hfun_setup_s": 4.84238338470459,
+    "mesh_s": 2561.5688309669495,
+    "total_s": 2596.1938140392303
+  },
+  "mesh": {
+    "nodes": 1701388,
+    "triangles": 3380548,
+    "lon_min": 157.0,
+    "lon_max": 220.0,
+    "lat_min": 48.00000000136045,
+    "lat_max": 76.50000016259715,
+    "max_element_lon_span_deg": 0.18943878267765513,
+    "crs": "EPSG:4326"
+  }
+}
