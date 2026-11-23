@@ -1,0 +1,25 @@
+# The mesh of the M70-M74 runs: legacy/AK_test, case m5_no_center, built
+# 2026-11-19 on Gaea C6 with method fast (job 223595964, 1,701,388 nodes).
+name: AK_LARGEDOMAIN_m5_no_center
+description: m4_plus_coarse (October mesh) without the center region
+data_dir: /gpfs/f6/nos-surge/scratch/Felicio.Cassalho/OCSMesh_MPI/AK_LargeDomain_Mesh/2026_10_15
+domain: AKdomain_20261014.shp
+dem: GEBCO_2026.tif
+hmin: 1500
+hmax: 3500
+method: fast
+engine: gmsh
+bnd_factor: 1.5
+metric_crs: EPSG:3338
+force_metric_crs: true
+machine: gaea_c6
+refinements:
+  # 1500 m on the shelf; 1500 -> 2500 m over ~45 km outside
+  - {name: shelf_150, kind: patch, shp: 150m_contour.shp, size: 1500, rate: 1.48e-5}
+  - {name: below_150_patch, kind: patch, shp: below_150m_contour.shp, size: 2500}
+  # no finer than 2500 m in deep water; fades out (2500 -> 1500 m) over ~8 km
+  - {name: below_200, kind: region, shp: below_200m_contour.shp, size: 2500, rate: 5.0e-5}
+  # Bering Sea 2500 m (patches take the min: the 1500 m shelf is kept)
+  - {name: bering_2500, kind: patch, shp: beringsea.shp, size: 2500}
+  - {name: coarse_south, kind: region, shp: coarse_ocean_south.shp, size: 3500, rate: 1.0e-5}
+  - {name: coarse_north, kind: region, shp: coarse_ocean_north.shp, size: 3500, rate: 1.0e-5}

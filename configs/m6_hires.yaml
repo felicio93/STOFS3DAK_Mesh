@@ -1,0 +1,27 @@
+# m5_no_center + high-resolution areas (new M70 mesh). Draw the areas as
+# polygons in one shapefile, hires_areas.shp in data_dir (any CRS, -180..180
+# or 0-360). An optional numeric attribute size_m sets a size per polygon;
+# polygons without it get 'size'. Run 'akmesh check' first: it warns where a
+# region (below_200, coarse_*) would raise the patch, and estimates the nodes.
+name: AK_m6_hires
+description: m5_no_center + high-resolution patches
+data_dir: /gpfs/f6/nos-surge/scratch/Felicio.Cassalho/OCSMesh_MPI/AK_LargeDomain_Mesh/2026_10_15
+domain: AKdomain_20261014.shp
+dem: GEBCO_2026.tif
+hmin: 500
+hmax: 3500
+method: fast
+engine: gmsh
+bnd_factor: 1.5
+metric_crs: EPSG:3338
+force_metric_crs: true
+machine: gaea_c6
+refinements:
+  - {name: shelf_150, kind: patch, shp: 150m_contour.shp, size: 1500, rate: 1.48e-5}
+  - {name: below_150_patch, kind: patch, shp: below_150m_contour.shp, size: 2500}
+  - {name: below_200, kind: region, shp: below_200m_contour.shp, size: 2500, rate: 5.0e-5}
+  - {name: bering_2500, kind: patch, shp: beringsea.shp, size: 2500}
+  - {name: coarse_south, kind: region, shp: coarse_ocean_south.shp, size: 3500, rate: 1.0e-5}
+  - {name: coarse_north, kind: region, shp: coarse_ocean_north.shp, size: 3500, rate: 1.0e-5}
+  # 500 m inside; 500 -> 1500 m over ~20 km outside (rate 1e-4)
+  - {name: hires, kind: patch, shp: hires_areas.shp, size: 500, rate: 1.0e-4, size_field: size_m}

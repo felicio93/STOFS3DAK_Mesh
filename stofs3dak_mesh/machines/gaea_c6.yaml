@@ -1,0 +1,25 @@
+# NOAA Gaea C6. Values of the 2026-11-19 M70 mesh job (legacy/AK_test/slurm_ak_mesh.sh).
+sbatch:
+  account: nos-surge
+  partition: batch
+  clusters: c6
+  qos: normal
+  nodes: 1
+  ntasks: 1
+  cpus-per-task: 32
+  exclusive: true
+  time: "16:00:00"
+  mail-type: END,FAIL
+  mail-user: felicio.cassalho@noaa.gov
+# Shell lines run before the build (modules, conda).
+setup: |
+  module load PrgEnv-intel
+  export LD_LIBRARY_PATH=${CRAY_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}
+  source /ncrc/proj/nos-surge/Felicio.Cassalho/miniconda3/etc/profile.d/conda.sh
+  conda activate ocsmesh_mpi_test
+# OCSMesh checkout put first on PYTHONPATH (empty: the one installed in the env).
+# ak/lon360-patched = the 0-360 workarounds used for the M70 mesh.
+ocsmesh_path: /gpfs/f6/nos-surge/scratch/Felicio.Cassalho/OCSMesh_MPI/OCSMesh_ak_patched
+# Default results folder when the recipe has no out_root.
+out_root: /gpfs/f6/nos-surge/scratch/Felicio.Cassalho/OCSMesh_MPI/AK_LargeDomain_Mesh/results
+launcher: srun --ntasks=1 --cpus-per-task={cpus} --cpu-bind=cores

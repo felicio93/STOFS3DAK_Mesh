@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stofs3dak-mesh"
+version = "0.1.0"
+description = "Mesh generation for the STOFS-3D-Alaska SCHISM domain (OCSMesh, 0-360 longitudes)"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["pyyaml", "numpy", "shapely>=2", "geopandas", "pyproj", "rasterio", "scipy", "matplotlib"]
+
+[project.optional-dependencies]
+build = ["ocsmesh"]
+test = ["pytest"]
+
+[project.scripts]
+akmesh = "stofs3dak_mesh.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["stofs3dak_mesh*"]
+
+[tool.setuptools.package-data]
+stofs3dak_mesh = ["machines/*.yaml", "templates/*"]
