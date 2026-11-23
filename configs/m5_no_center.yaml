@@ -2,7 +2,7 @@
 # 2026-11-19 on Gaea C6 with method fast (job 223595964, 1,701,388 nodes).
 name: AK_LARGEDOMAIN_m5_no_center
 description: m4_plus_coarse (October mesh) without the center region
-data_dir: /gpfs/f6/nos-surge/scratch/Felicio.Cassalho/OCSMesh_MPI/AK_LargeDomain_Mesh/2026_10_15
+data_dir: ../inputs   # the repository's inputs/ folder
 domain: AKdomain_20261014.shp
 dem: GEBCO_2026.tif
 hmin: 1500

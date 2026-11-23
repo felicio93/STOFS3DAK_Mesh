@@ -5,7 +5,7 @@
 # region (below_200, coarse_*) would raise the patch, and estimates the nodes.
 name: AK_m6_hires
 description: m5_no_center + high-resolution patches
-data_dir: /gpfs/f6/nos-surge/scratch/Felicio.Cassalho/OCSMesh_MPI/AK_LargeDomain_Mesh/2026_10_15
+data_dir: ../inputs   # the repository's inputs/ folder
 domain: AKdomain_20261014.shp
 dem: GEBCO_2026.tif
 hmin: 750

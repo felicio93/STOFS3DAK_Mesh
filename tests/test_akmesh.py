@@ -55,3 +55,9 @@ def test_refinement_parts_size_field():
     parts = refinement_parts(cfg.refinements[0], gdf)
     assert [(p[1], p[2]) for p in parts] == [(500, 1e-4), (800.0, 1e-4)]
     assert parts[1][0].area == pytest.approx(2.0)
+
+
+def test_relative_data_dir_from_recipe_folder(tmp_path):
+    cfg = parse({**BASE, "data_dir": "../inputs"}, source=tmp_path / "configs" / "r.yaml")
+    assert cfg.data_dir == tmp_path / "inputs"
+    assert cfg.domain == tmp_path / "inputs" / "d.shp"

@@ -15,8 +15,11 @@ submits the batch job that builds the mesh on the HPC.
 | `configs/m5_no_center.yaml` | the mesh of the M70-M74 runs (2026-11-19, `fast`, 1,701,388 nodes) |
 | `configs/m6_hires.yaml` | m5 + 750 m areas from `500m_areas.shp` (to 1500 m over ~10 km), `bnd_factor` 1.2 |
 
-`legacy/AK_test/` is the script that built the M70 mesh, kept as it was,
-with its logs and summary.
+`inputs/` holds every input file (domain, refinement and clipping polygons,
+GEBCO), so a clone has all it needs; the recipes point at it with
+`data_dir: ../inputs` (relative to the recipe file). `legacy/AK_test/` is
+the script that built the M70 mesh, kept as it was, with its logs and
+summary.
 
 ## Install
 
@@ -61,7 +64,7 @@ the recipe (`config.yaml`) and `job.sh`, and submits it. The job runs
 
 ```yaml
 name: AK_m6_hires
-data_dir: /gpfs/.../AK_LargeDomain_Mesh/2026_10_15   # relative paths below are taken from here
+data_dir: ../inputs                                  # relative to this file; paths below are taken from here
 out_root: /gpfs/.../results                          # optional; default from the machine file
 domain: AKdomain_20261014.shp
 dem: GEBCO_2026.tif                                  # 0-360, or global -180..180 (rolled once to <stem>_360.tif)
@@ -105,7 +108,7 @@ With `method: fast`, OCSMesh evaluates the size function on a raster of
 
 1. Draw the polygons in QGIS into one shapefile (`500m_areas.shp`), with an
    optional numeric field `size_m`.
-2. Copy it into `data_dir` (or give `shp` an absolute path).
+2. Put it in `inputs/` and commit it.
 3. `akmesh check -c configs/m6_hires.yaml`: look at the preview and the notes,
    then adjust sizes and rates.
 4. `akmesh submit -c configs/m6_hires.yaml`.

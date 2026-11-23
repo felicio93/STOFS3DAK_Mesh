@@ -29,6 +29,9 @@ Refinement kinds (sizes in m, rates in 1/m, distance d in m from the polygon):
           size", bound(d) = size * (1 + rate*d). Applied after all patches,
           so a min region raises any finer patch inside it.
 
+A relative ``data_dir`` is taken from the folder of the recipe file
+(``data_dir: ../inputs`` = the inputs/ folder of the repository).
+
 ``size_field`` (optional) names a shapefile attribute holding a size per
 polygon; polygons with no value take ``size``. ``rate_field`` does the same
 for the rate. Relative ``shp``/``domain``/``dem`` paths are taken from
@@ -116,7 +119,10 @@ def parse(raw: dict, source: Optional[Path] = None,
             raise ConfigError("'data_dir' is required")
         data_dir = Path(os.path.expandvars(os.path.expanduser(
             str(raw["data_dir"]))))
-    data_dir = Path(data_dir)
+        # a relative data_dir is taken from the recipe's folder
+        if not data_dir.is_absolute() and source is not None:
+            data_dir = Path(source).parent / data_dir
+    data_dir = Path(os.path.normpath(os.path.abspath(data_dir)))
 
     hmin, hmax = _float(raw, "hmin", "config"), _float(raw, "hmax", "config")
     if not 0 < hmin <= hmax:
