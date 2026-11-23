@@ -13,7 +13,7 @@ submits the batch job that builds the mesh on the HPC.
 | recipe | mesh |
 |---|---|
 | `configs/m5_no_center.yaml` | the mesh of the M70-M74 runs (2026-11-19, `fast`, 1,701,388 nodes) |
-| `configs/m6_hires.yaml` | m5 + high-resolution areas from `hires_areas.shp` |
+| `configs/m6_hires.yaml` | m5 + 750 m areas from `500m_areas.shp` (to 1500 m over ~10 km), `bnd_factor` 1.2 |
 
 `legacy/AK_test/` is the script that built the M70 mesh, kept as it was,
 with its logs and summary.
@@ -65,11 +65,11 @@ data_dir: /gpfs/.../AK_LargeDomain_Mesh/2026_10_15   # relative paths below are 
 out_root: /gpfs/.../results                          # optional; default from the machine file
 domain: AKdomain_20261014.shp
 dem: GEBCO_2026.tif                                  # 0-360, or global -180..180 (rolled once to <stem>_360.tif)
-hmin: 500
+hmin: 750
 hmax: 3500
 method: fast                                         # fast | exact
 engine: gmsh                                         # gmsh | triangle
-bnd_factor: 1.5                                      # Gmsh 'adapt' boundary spacing = size x this
+bnd_factor: 1.2                                      # Gmsh 'adapt' boundary spacing = size x this
 metric_crs: EPSG:3338
 force_metric_crs: true                               # the antimeridian workaround (see below)
 machine: gaea_c6                                     # stofs3dak_mesh/machines/<name>.yaml, or a path
@@ -77,7 +77,7 @@ job: {time: "08:00:00"}                              # optional sbatch overrides
 refinements:
   - {name: shelf_150, kind: patch, shp: 150m_contour.shp, size: 1500, rate: 1.48e-5}
   - {name: below_200, kind: region, shp: below_200m_contour.shp, size: 2500, rate: 5.0e-5}
-  - {name: hires, kind: patch, shp: hires_areas.shp, size: 500, rate: 1.0e-4, size_field: size_m}
+  - {name: hires, kind: patch, shp: 500m_areas.shp, size: 750, rate: 1.0e-4, size_field: size_m}
 ```
 
 Sizes in m, rates in 1/m, `d` = distance in m from the polygon:
@@ -99,11 +99,11 @@ rate. Shapefiles can be in any CRS and in -180..180 or 0-360.
 
 With `method: fast`, OCSMesh evaluates the size function on a raster of
 `hmin/2` over the whole domain (750 m for the M70 mesh), so going from
-`hmin` 1500 to 500 m makes that raster about 9 times larger.
+`hmin` 1500 to 750 m makes that raster about 4 times larger.
 
 ## High-resolution areas
 
-1. Draw the polygons in QGIS into one shapefile (`hires_areas.shp`), with an
+1. Draw the polygons in QGIS into one shapefile (`500m_areas.shp`), with an
    optional numeric field `size_m`.
 2. Copy it into `data_dir` (or give `shp` an absolute path).
 3. `akmesh check -c configs/m6_hires.yaml`: look at the preview and the notes,
