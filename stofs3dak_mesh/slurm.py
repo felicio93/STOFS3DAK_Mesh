@@ -29,19 +29,29 @@ def _sbatch_lines(opts: dict) -> str:
     return "\n".join(lines)
 
 
-def render(cfg, out_dir: Path, machine: dict) -> str:
+def render_job(name: str, out_dir: Path, machine: dict, job: dict,
+               command: str, log: str = "akmesh") -> str:
+    """Job script running ``python -m stofs3dak_mesh.cli <command>`` (with
+    {nprocs} in ``command`` replaced by cpus-per-task)."""
     sb = dict(machine.get("sbatch") or {})
-    sb.update(cfg.job or {})
+    sb.update(job or {})
     cpus = int(sb.get("cpus-per-task", 1))
     paths = [str(PKG_ROOT)]
     if machine.get("ocsmesh_path"):
         paths.insert(0, str(machine["ocsmesh_path"]))
     launcher = str(machine.get("launcher", "")).format(cpus=cpus)
     return TEMPLATE.read_text().format(
-        created=datetime.now().strftime("%Y-%m-%d %H:%M"), name=cfg.name,
-        sbatch_lines=_sbatch_lines(sb), out_dir=out_dir,
+        created=datetime.now().strftime("%Y-%m-%d %H:%M"), name=name,
+        sbatch_lines=_sbatch_lines(sb), out_dir=out_dir, log=log,
         setup=str(machine.get("setup", "")).rstrip(),
-        pythonpath=":".join(paths), launcher=launcher, nprocs=cpus)
+        pythonpath=":".join(paths), launcher=launcher,
+        command=command.replace("{nprocs}", str(cpus)))
+
+
+def render(cfg, out_dir: Path, machine: dict) -> str:
+    return render_job(cfg.name, out_dir, machine, cfg.job,
+                      f'build -c "{out_dir}/config.yaml" --out-dir "{out_dir}" '
+                      f'--nprocs {{nprocs}}')
 
 
 def prepare(cfg, out_dir: Path = None) -> Path:

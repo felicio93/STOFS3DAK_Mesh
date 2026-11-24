@@ -7,6 +7,9 @@
       results folder + job.sh for the recipe's machine, then sbatch
   akmesh build  -c config.yaml --out-dir DIR [--nprocs N]
       the mesh itself (what job.sh runs); needs OCSMesh
+  akmesh hgrid  -c configs/hgrid_m73.yaml --mesh DIR/AK_m6_hires.2dm [--submit]
+      SCHISM hgrid from the mesh: order, DEM depths, elevation limits
+      (force_channels, clip areas, -3 m), open/land boundaries; needs OCSMesh
 """
 from __future__ import annotations
 
@@ -63,6 +66,34 @@ def cmd_build(a) -> int:
     return 0
 
 
+def cmd_hgrid(a) -> int:
+    from .hgrid import inputs_of, load_recipe, make_hgrid
+    hc = load_recipe(a.config, data_dir=a.data_dir)
+    mesh = Path(a.mesh).resolve()
+    missing = [str(p) for p in [mesh] + inputs_of(hc) if not Path(p).is_file()]
+    if missing:
+        print("ERROR: input(s) not found:\n  " + "\n  ".join(missing))
+        return 1
+    out = Path(a.out_dir).resolve() if a.out_dir else mesh.parent / hc["name"]
+    if not a.submit:
+        make_hgrid(hc, mesh, out)
+        return 0
+    from .config import load_machine
+    from .slurm import render_job, submit
+    out.mkdir(parents=True, exist_ok=True)
+    job = out / "job_hgrid.sh"
+    cmd = (f'hgrid -c "{Path(a.config).resolve()}" --mesh "{mesh}" '
+           f'--out-dir "{out}"'
+           + (f' --data-dir "{Path(a.data_dir).resolve()}"' if a.data_dir else ""))
+    job.write_text(render_job(hc["name"], out, load_machine(hc.get("machine", "gaea_c6")),
+                              {"time": "02:00:00", **(hc.get("job") or {})},
+                              cmd, log="hgrid"))
+    job.chmod(0o755)
+    print(f"output folder: {out}\njob script:    {job}")
+    print(submit(job))
+    return 0
+
+
 def main(argv=None) -> int:
     logging.basicConfig(level=logging.INFO, datefmt="%H:%M:%S",
                         format="%(asctime)s %(levelname)s: %(message)s")
@@ -97,6 +128,15 @@ def main(argv=None) -> int:
     p.add_argument("--force-raster", action="store_true",
                    help="re-roll the DEM to 0-360 even if the copy looks current")
     p.set_defaults(func=cmd_build)
+
+    p = sub.add_parser("hgrid", help="SCHISM hgrid from a built mesh (needs OCSMesh)")
+    common(p)
+    p.add_argument("--mesh", required=True, help="the .2dm (or .gr3) of akmesh build")
+    p.add_argument("--out-dir", default=None,
+                   help="output folder (default: <mesh folder>/<name>)")
+    p.add_argument("--submit", action="store_true",
+                   help="run it as a batch job (machine of the recipe, 2 h)")
+    p.set_defaults(func=cmd_hgrid)
 
     a = ap.parse_args(argv)
     try:

@@ -1,0 +1,12 @@
+# hgrid for M70-M72: GEBCO depths, deeper channels, at least 3 m deep
+# everywhere else, open boundaries from bnd1.shp.
+name: hgrid_m70
+data_dir: ../inputs
+dem: GEBCO_2026.tif
+interp_method: linear
+max_elevation: -3          # elevation (m, positive up) cap everywhere: >= 3 m deep
+force_channels:            # minimum depth |Depth| m inside each polygon
+  shp: force_channels.shp
+  depth_field: Depth
+open_boundaries: bnd1.shp  # mesh edges crossing these shapes become open boundaries
+machine: gaea_c6

@@ -104,6 +104,37 @@ With `method: fast`, OCSMesh evaluates the size function on a raster of
 `hmin/2` over the whole domain (750 m for the M70 mesh), so going from
 `hmin` 1500 to 750 m makes that raster about 4 times larger.
 
+## From mesh to SCHISM hgrid
+
+```bash
+akmesh hgrid -c configs/hgrid_m70.yaml --mesh <results folder>/AK_m6_hires.2dm --submit
+akmesh hgrid -c configs/hgrid_m73.yaml --mesh <results folder>/AK_m6_hires.2dm --submit
+```
+Without `--submit` it runs in the terminal (a few minutes for 1.7 million
+nodes). Output in `<results folder>/<name>/`: `<name>.gr3` (SCHISM depth,
+positive down, with boundaries), `<name>.ll` (the same file: the mesh is in
+lon/lat), `<name>.2dm` and `<name>_summary.json` (nodes changed by each
+limit, depth range, boundary sizes).
+
+Steps:
+1. open the mesh and orient every element counterclockwise (`order_mesh`);
+2. interpolate GEBCO to the nodes (`interp_method`, default linear);
+3. elevation limits, all maxima on the elevation (positive up):
+   - `max_elevation: -3`: at least 3 m deep everywhere;
+   - `max_elevation_areas`: polygons with their own maximum in place of -3
+     (`clip_to_zero` 0, `clip_to_five` +5); the highest applies where they overlap;
+   - `force_channels`: each polygon at least `|Depth|` m deep (the sign of
+     the attribute is ignored; a polygon without a value is skipped and
+     reported), to open channels the DEM blocks;
+4. boundaries: everything land (islands as interior boundaries), then the
+   mesh edges crossing `open_boundaries` (`bnd1.shp`) become open; each
+   boundary type is written largest first.
+
+| recipe | limits |
+|---|---|
+| `configs/hgrid_m70.yaml` | M70-M72: force channels, -3 m everywhere else |
+| `configs/hgrid_m73.yaml` | M73: force channels, 0 m in `clip_to_zero`, +5 m in `clip_to_five`, -3 m elsewhere |
+
 ## High-resolution areas
 
 1. Draw the polygons in QGIS into one shapefile (`500m_areas.shp`), with an

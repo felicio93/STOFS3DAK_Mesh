@@ -1,0 +1,15 @@
+# hgrid for M73: as hgrid_m70, but up to MSL in clip_to_zero and up to
+# 5 m above MSL in clip_to_five (floodplain); at least 3 m deep elsewhere.
+name: hgrid_m73
+data_dir: ../inputs
+dem: GEBCO_2026.tif
+interp_method: linear
+max_elevation: -3
+max_elevation_areas:       # replace max_elevation inside the polygons (highest wins on overlap)
+  - {shp: clip_to_zero.shp, max_elevation: 0}
+  - {shp: clip_to_five.shp, max_elevation: 5}
+force_channels:
+  shp: force_channels.shp
+  depth_field: Depth
+open_boundaries: bnd1.shp
+machine: gaea_c6

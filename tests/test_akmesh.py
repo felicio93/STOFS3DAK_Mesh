@@ -72,3 +72,27 @@ def test_refinement_parts_missing_size_field_uses_default():
                            box(195, 60, 196, 61)], crs="EPSG:4326")
     parts = refinement_parts(cfg.refinements[0], gdf)
     assert [(p[1], p[2]) for p in parts] == [(750, 1e-4)]
+
+
+def test_elevation_limits(tmp_path):
+    import geopandas as gpd
+    from stofs3dak_mesh.hgrid import elevation_limits
+    gpd.GeoDataFrame({"id": [1]}, geometry=[box(190, 60, 192, 62)],
+                     crs="EPSG:4326").to_file(tmp_path / "zero.shp")
+    gpd.GeoDataFrame({"id": [1]}, geometry=[box(-170, 60, -169, 62)],   # 190..191 after the shift
+                     crs="EPSG:4326").to_file(tmp_path / "five.shp")
+    gpd.GeoDataFrame({"Depth": [-30.0, None]},
+                     geometry=[box(191.5, 60, 192.5, 62), box(195, 60, 196, 61)],
+                     crs="EPSG:4326").to_file(tmp_path / "ch.shp")
+    # nodes: in zero+five, in zero, zero+channel, channel only, elsewhere, no-depth channel
+    x = np.array([190.5, 191.2, 191.8, 192.2, 194.0, 195.5])
+    y = np.full(6, 61.0)
+    z = np.array([8.0, 3.0, 2.0, -5.0, -1.0, 1.0])
+    hc = {"max_elevation": -3,
+          "max_elevation_areas": [{"shp": tmp_path / "zero.shp", "max_elevation": 0},
+                                  {"shp": tmp_path / "five.shp", "max_elevation": 5}],
+          "force_channels": {"shp": tmp_path / "ch.shp", "depth_field": "Depth"}}
+    out, rep = elevation_limits(x, y, z, hc)
+    assert out.tolist() == [5.0, 0.0, -30.0, -30.0, -3.0, -3.0]
+    assert rep["areas"][1]["nodes_overlapping_earlier_areas"] == 1
+    assert rep["channels"][1]["skipped"]
